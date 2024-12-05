@@ -69,6 +69,9 @@ class AudioPipeline:
     def _get_mel_channels(self, hz_channels):
         return [int(librosa.hz_to_mel(hz)) for hz in hz_channels]
     
+    def _time_to_frames(self, time):
+        return librosa.time_to_frames(time, sr=self.rate, hop_length=self.n_fft // 4, n_fft=self.n_fft)
+    
     def load_audio(self, path):
         """
         Load audio data from file.
