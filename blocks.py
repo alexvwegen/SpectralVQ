@@ -65,7 +65,7 @@ class AttentionBlock(nn.Module):
 class WeightingLayer(nn.Module):
     def __init__(self, num_features):
         super().__init__()
-        self.weight = torch.ones((num_features, 1))
+        self.weight = nn.Parameter(torch.ones((num_features, 1)))
 
     def forward(self, X):
         return torch.einsum("bft, fi->bfit", X, self.weight).squeeze(dim=-2)
