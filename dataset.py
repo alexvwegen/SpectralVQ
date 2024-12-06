@@ -20,4 +20,4 @@ class AudioFeatureData(Dataset):
         feature_path = os.path.join(self.folder, file)
         feature = np.load(feature_path)
 
-        return torch.tensor(feature, dtype=torch.float32)
+        return torch.from_numpy(feature)
