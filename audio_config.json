@@ -1,0 +1,10 @@
+{
+    "rate": 44100,
+    "n_fft": 1024,
+    "n_mels": 128,
+    "n_mfcc": 20,
+    "fmin": 0,
+    "fmax": 10000,
+    "onset_boundaries": [0, 200, 500, 1300, 5500, 10000],
+    "retrievals": ["logmag"]
+}
