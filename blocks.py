@@ -16,17 +16,37 @@ class QKVAttention(nn.Module):
         k = self.key(x)
         v = self.value(x)
 
-        attn = torch.softmax(q.transpose(1, 2) @ k / (q.size(1) ** 0.5), dim=-1) # -> (B, T, T)
-        out = attn @ v.transpose(1, 2) # -> (B, T, L)
+        attn = torch.softmax(q.transpose(-1, -2) @ k / (q.size(1) ** 0.5), dim=-1) # -> (B, T, T)
+        out = attn @ v.transpose(-1, -2) # -> (B, T, L)
         out = self.out(out.transpose(1, 2))
         return self.dropout(out) + x
     
 
+class QKVAttention2D(nn.Module):
+    def __init__(self, channels, dropout=0.1):
+        super().__init__()
+        self.query = nn.Conv2d(channels, channels, kernel_size=1)
+        self.key = nn.Conv2d(channels, channels, kernel_size=1)
+        self.value = nn.Conv2d(channels, channels, kernel_size=1)
+        self.out = nn.Conv2d(channels, channels, kernel_size=1)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        q = self.query(x)  # -> (B, L, H, W)
+        k = self.key(x)
+        v = self.value(x)
+
+        attn = torch.softmax((q.transpose(-1, -2) @ k) / (q.size(1) ** 0.5), dim=-1)
+        out = attn @ v.transpose(-1, -2)
+        out = self.out(out)
+        return self.dropout(out) + x
+
+    
 class FeatureBlock(nn.Module):
     def __init__(self, in_channels, out_channels, dropout=0.1):
         super().__init__()
         self.block = nn.Sequential(
-            nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1),
+            nn.Conv1d(in_channels, out_channels, kernel_size=5, stride=2),
             nn.SiLU(),
             nn.BatchNorm1d(out_channels),
             QKVAttention(out_channels, dropout)
@@ -40,7 +60,7 @@ class ReverseFeatureBlock(nn.Module):
     def __init__(self, in_channels, out_channels, dropout=0.1):
         super().__init__()
         self.block = nn.Sequential(
-            nn.ConvTranspose1d(in_channels, out_channels, kernel_size=3, padding=1),
+            nn.ConvTranspose1d(in_channels, out_channels, kernel_size=5, stride=2, output_padding=1),
             nn.SiLU(),
             nn.BatchNorm1d(out_channels),
             QKVAttention(out_channels, dropout)

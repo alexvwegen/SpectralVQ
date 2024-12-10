@@ -21,3 +21,8 @@ class AudioFeatureData(Dataset):
         feature = np.load(feature_path)
 
         return torch.from_numpy(feature)
+    
+
+def take_slice(batch, num_frames=60):
+    sliced_samples = [sample[:,:num_frames] for sample in batch]
+    return torch.stack(sliced_samples)
