@@ -9,6 +9,7 @@ class AudioFeatureData(Dataset):
     Dataset for loading precomputed audio features from npy files.
     """
     def __init__(self, folder):
+        super().__init__()
         self.folder = folder
         self.files = [f for f in os.listdir(folder) if f.endswith('.npy')]
         
